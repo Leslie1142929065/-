@@ -3,7 +3,7 @@ import pickle
 import librosa
 import numpy as np
 import os
-model = load_model(r"D:\王晨E\pythonProject\for_test\mysite\wavesegment\saved_models\role.1_Voice_Detection_Model.h5")
+model = load_model(r"D:\王晨E\pythonProject\for_test\mysite\wavesegment\saved_models\role.1_Voice_Detection_Model.h5")#利用训练好的模型进行识别
 paradict = {}
 with open(r'D:\王晨E\pythonProject\for_test\mysite\wavesegment\mfcc_role.1_model_para_dict.pkl', 'rb') as f:
     paradict = pickle.load(f)
@@ -16,7 +16,6 @@ y,sr = librosa.load(path,sr=None)
 def normalizeVoiceLen(y,normalizedLen):
     nframes=len(y)
     y = np.reshape(y,[nframes,1]).T
-    #归一化音频长度为2s,32000数据点
     if(nframes<normalizedLen):
         res=normalizedLen-nframes
         res_data=np.zeros([1,res],dtype=np.float32)
@@ -27,19 +26,16 @@ def normalizeVoiceLen(y,normalizedLen):
     return y[0]
 def getNearestLen(framelength,sr):
     framesize = framelength*sr
-    #找到与当前framesize最接近的2的正整数次方
     nfftdict = {}
     lists = [32,64]
     for i in lists:
         nfftdict[i] = abs(framesize - i)
-    sortlist = sorted(nfftdict.items(), key=lambda x: x[1])#按与当前framesize差值升序排列
-    framesize = int(sortlist[0][0])#取最接近当前framesize的那个2的正整数次方值为新的framesize
+    sortlist = sorted(nfftdict.items(), key=lambda x: x[1])
     return framesize
 VOICE_LEN=1920
-#获得N_FFT的长度
 N_FFT=getNearestLen(0.25,sr)
 y, sr = librosa.load(path, sr=None)
-y = normalizeVoiceLen(y, VOICE_LEN)  # 归一化长度
+y = normalizeVoiceLen(y, VOICE_LEN) 
 mfcc_data = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13, n_fft=N_FFT, hop_length=int(N_FFT / 4))
 feature = np.mean(mfcc_data, axis=0)
 feature = feature.reshape((121, 1))
@@ -49,61 +45,3 @@ feature = feature.reshape((1, 121, 1))
 result = model.predict(feature)
 index = np.argmax(result, axis=1)[0]
 print(edr[index])
-# model = load_model(r"D:\王晨E\pythonProject\for_test\mysite\wavesegment\saved_models\role.1_Voice_Detection_Model.h5")
-# paradict = {}
-# with open(r'D:\王晨E\pythonProject\for_test\mysite\wavesegment\mfcc_role.1_model_para_dict.pkl', 'rb') as f:
-#     paradict = pickle.load(f)
-# DATA_MEAN = paradict['mean']
-# DATA_STD = paradict['std']
-# emotionDict = paradict['emotion']
-# edr = dict([(i, t) for t, i in emotionDict.items()])
-# dirPath = r"D:/王晨E/pythonProject/for_test/mysite/static/总/123/chunks/" #所有txt位于的文件夹路径
-# files = os.listdir(dirPath)
-# res = ""
-# a = 0
-# for file in files:
-#     if file.endswith(".wav"):
-#         a += 1
-#         title = "第%s章 %s" % (a, file[0:len(file)-4])
-#         with open("D:/王晨E/pythonProject/for_test/mysite/static/总/123/chunks/" + file, "r", encoding='gbk', errors='ignore') as file:
-#             content = file.read()
-#             file.close()
-#         append = "\n%s\n\n%s" % (title, content)
-#         res += append
-# y,sr = librosa.load(dirPath,sr=None)
-# def normalizeVoiceLen(y,normalizedLen):
-#     nframes=len(y)
-#     y = np.reshape(y,[nframes,1]).T
-#     #归一化音频长度为2s,32000数据点
-#     if(nframes<normalizedLen):
-#         res=normalizedLen-nframes
-#         res_data=np.zeros([1,res],dtype=np.float32)
-#         y = np.reshape(y,[nframes,1]).T
-#         y=np.c_[y,res_data]
-#     else:
-#         y=y[:,0:normalizedLen]
-#     return y[0]
-# def getNearestLen(framelength,sr):
-#     framesize = framelength*sr
-#     #找到与当前framesize最接近的2的正整数次方
-#     nfftdict = {}
-#     lists = [32,64]
-#     for i in lists:
-#         nfftdict[i] = abs(framesize - i)
-#     sortlist = sorted(nfftdict.items(), key=lambda x: x[1])#按与当前framesize差值升序排列
-#     framesize = int(sortlist[0][0])#取最接近当前framesize的那个2的正整数次方值为新的framesize
-#     return framesize
-# VOICE_LEN=1920
-# #获得N_FFT的长度
-# N_FFT=getNearestLen(0.25,sr)
-# y, sr = librosa.load(dirPath, sr=None)
-# y = normalizeVoiceLen(y, VOICE_LEN)  # 归一化长度
-# mfcc_data = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13, n_fft=N_FFT, hop_length=int(N_FFT / 4))
-# feature = np.mean(mfcc_data, axis=0)
-# feature = feature.reshape((121, 1))
-# feature -= DATA_MEAN
-# feature /= DATA_STD
-# feature = feature.reshape((1, 121, 1))
-# result = model.predict(feature)
-# index = np.argmax(result, axis=1)[0]
-# print(edr[index])
