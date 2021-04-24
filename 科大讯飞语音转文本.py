@@ -203,14 +203,10 @@ class RequestApi(object):
                 file_obj.write(iterating_var["onebest"])
                 file_obj.write("\n")
 
-
-
-# 注意：如果出现requests模块报错："NoneType" object has no attribute 'read', 请尝试将requests模块更新到2.20.0或以上版本(本demo测试版本为2.20.0)
-# 输入讯飞开放平台的appid，secret_key和待转写的文件路径
 if __name__ == '__main__':
     api = RequestApi(
         appid="db0b23c5",
-        secret_key="0492453494529533590bb9b8aa3efeff",
+        secret_key=********************
         upload_file_path=r"D:\王晨E\pythonProject\for_test\mysite\static\总\123\chunks\2021-04-21 15-40-30降噪.wav0102.wav",
         to_file=r"D:\王晨E\pythonProject\for_test\mysite\static\总\123\chunks\新建文件夹\test102.txt"
     )
